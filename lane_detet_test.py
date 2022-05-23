@@ -64,18 +64,23 @@ def undistort(image, mtx, dist):
 ## 카메라 캘리브레이션을 실제로 실행하여 받는 부분
 ## 카메라에 대한 기본 정보이기 때문에, 아래와 같이 따로 파일 위치를 선언하여 사용한다.
 ## 기본 카메라 이미지는 주로 체스판을 활용하여 이를 통해서 왜곡 정보를 획득한다.
+## 아래의 내용에 대해서 상세 파일이 존재하지 않으므로 Error 발생으로 Pass 된다.
 mtx, dist = camera_Calibraton('camera_cal', 'calibration', 9, 6, (720, 1280))
 checker_dist = mpimg.imread("./camera_cal/calibration2.jpg")
 checker_undist = undistort(checker_dist, mtx, dist)
 
 
-
+## 카메라 왜곡 이미지 보정이 제대로 되었는지 확인하는 부분
 f, ((ax1, ax2)) = plt.subplots(1, 2, figsize=(12, 18))
 ax1.imshow(checker_dist)
 ax1.set_title('Original', fontsize=15)
 ax2.imshow(checker_undist)
 ax2.set_title('Undistorted', fontsize=15)
 
+
+
+
+## 절대값 소벨 변환을 기준으로 엣지 추출
 def abs_sobel_thresh(image, orient='x', sobel_kernel=3, thresh=(0, 255)):
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     assert(orient == 'x' or orient == 'y'), "Orientation must be x or y"
@@ -94,6 +99,10 @@ def abs_sobel_thresh(image, orient='x', sobel_kernel=3, thresh=(0, 255)):
  
     return grad_binary
 
+
+
+
+## 미분 소벨 변환을 기준으로 엣지 추출
 def mag_thresh(image, sobel_kernel=3, thresh=(0, 255)):
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize = sobel_kernel)
@@ -108,6 +117,9 @@ def mag_thresh(image, sobel_kernel=3, thresh=(0, 255)):
     
     return mag_binary
 
+
+
+## 이것도 소벨 변환으로 엣지 추출하는건데 아마 적분이지 않을까 생각중
 def dir_threshold(image, sobel_kernel=3, thresh=(0, np.pi/2)):
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
@@ -119,6 +131,10 @@ def dir_threshold(image, sobel_kernel=3, thresh=(0, np.pi/2)):
 
     return dir_binary
 
+
+## 이 부분은 이미지의 Feature를 성분별로 추출해내는거임
+## RGB, HSV, HLS, YCrCb, Lab로 이미지를 각가 추출해내는 거임
+## 이 함수를 이미지와 추출해낼 채널을 아래와 같이 입력하면 이미지에서 그에 대한 성분을 리턴해줌
 def channel_Isolate(image,channel):
     ## Takes in only RBG images
     if (channel == 'R'):
@@ -156,7 +172,12 @@ def channel_Isolate(image,channel):
     
     else:
         raise Error("Channel must be either R, G, B, H, S, V, L, Cb, U")
-    
+
+
+
+
+
+
 def threshold_Channel(channel,thresh):
     retval, binary = cv2.threshold(channel.astype('uint8'), thresh[0], thresh[1], cv2.THRESH_BINARY)
     return binary
