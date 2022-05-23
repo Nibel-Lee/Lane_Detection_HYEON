@@ -169,7 +169,7 @@ def channel_Isolate(image,channel):
     elif (channel == 'U'):
         LUV = cv2.cvtColor(image, cv2.COLOR_RGB2Lab)
         return LUV[:,:,2]
-    
+    ## 채널 입력 안되면 에러 반환함
     else:
         raise Error("Channel must be either R, G, B, H, S, V, L, Cb, U")
 
@@ -177,7 +177,7 @@ def channel_Isolate(image,channel):
 
 
 
-
+## thresh 값에 맞는 영역을 channel에서 찾아서 반환하는 매커니즘, thresh 값에 해당하지않으면 0을 대신 넣어서 이미지를 만들어서 넘겨주는걸로 앎
 def threshold_Channel(channel,thresh):
     retval, binary = cv2.threshold(channel.astype('uint8'), thresh[0], thresh[1], cv2.THRESH_BINARY)
     return binary
