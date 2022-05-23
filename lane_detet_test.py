@@ -8,12 +8,17 @@ import math
 # For cordinate isolation
 #%matplotlib qt  
 
+## 에러 발생시 무시하고 계속 실행도록 하는 Class
 class Error(Exception):
     pass
-        
-global polygon, area
-## Compute camera calibration matrix and distortion coefficients.
 
+## 전역변수 생성        
+global polygon, area
+
+## Compute camera calibration matrix and distortion coefficients.
+## camera_ Calibration 함수는 내가 안짜서 내용물이 뭔지 모르겠음
+## 하는 일은 광각카메라로 사진을 찍을 경우, 카메라 렌즈에 의해서 이미지 왜곡 현상이 발생하는데 이를 보정하여 이미지 왜곡을 없애는 함수임
+## 실제로 이 함수의 결과를 보면 내부 파라미터 mtx와 왜곡계수 dist를 반환함, 이는 카메라의 왜곡 정도와 내부 파라미터를 판단하여 리턴해주는 함수
 def camera_Calibraton(directory, filename, nx, ny, img_size):
     objp = np.zeros((nx*ny,3), np.float32)
     objp[:,:2] = np.mgrid[0:nx, 0:ny].T.reshape(-1,2)
@@ -44,10 +49,21 @@ def camera_Calibraton(directory, filename, nx, ny, img_size):
         
     return mtx, dist
 
+
+
+
+## undistort 함수는 위의 camera_calibration 함수를 통해서 얻은 파라미터를 통해서 실질적으로 이미지를 보정하는 함수이다.
+## camera_calibration 함수와 떨어트려서 보면 안되는 함수임
 def undistort(image, mtx, dist):
     image = cv2.undistort(image, mtx, dist, None, mtx)
     return image
 
+
+
+
+## 카메라 캘리브레이션을 실제로 실행하여 받는 부분
+## 카메라에 대한 기본 정보이기 때문에, 아래와 같이 따로 파일 위치를 선언하여 사용한다.
+## 기본 카메라 이미지는 주로 체스판을 활용하여 이를 통해서 왜곡 정보를 획득한다.
 mtx, dist = camera_Calibraton('camera_cal', 'calibration', 9, 6, (720, 1280))
 checker_dist = mpimg.imread("./camera_cal/calibration2.jpg")
 checker_undist = undistort(checker_dist, mtx, dist)
