@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-import scipy.interpolate as ip
+
 from scipy.interpolate import splrep, splev
 import matplotlib.pyplot as plt
 
@@ -314,6 +314,7 @@ def transform(img, pts1, pts2, xsize, ysize):
 
 
 mov = cv2.VideoCapture('road_mov/2.mp4')
+# cap = cv2.VideoCapture('Capture.mp4')
 wid, hei = 854, 480
 x1, y1, x2, y2 = 369.7354320721189, 305.0, 476.28795444480807, 305.0
 pts1 = np.float32([[(0,hei),(x1, y1), (x2, y2), (wid+30,hei)]])

@@ -3,7 +3,7 @@ import numpy as np
 
 class Error(Exception):
     pass
-xylist = list()
+
 hei, wid = None, None
 
 def mix_layer(frame):
@@ -43,11 +43,11 @@ def mix_layer(frame):
     return src
 
 
-def hough_line_test(img, edges, rho, theta, threshold, min_line_len, max_line_gap):
+def hough_line_test(img, edges, rho, theta, threshold, min_line_len, max_line_gap, p_p):
     lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
     hei, wid, __ = img.shape
     out_of_range = wid, hei
-    global xylist
+    xylist = [[p_p[0], p_p[1]]]
     try:
         for line1 in lines:
             for line2 in lines:
@@ -74,7 +74,7 @@ def hough_line_test(img, edges, rho, theta, threshold, min_line_len, max_line_ga
         print(Exception.__traceback__)
         pass
 
-    return img
+    return px,py
 
 
 def line_intersection(line1, line2, out_of_range):
@@ -132,8 +132,8 @@ def transform(img, pts1, pts2, xsize, ysize):
     return p_img
 
 
-mov = cv2.VideoCapture('road_mov/2.mp4')
-
+mov = cv2.VideoCapture('road_mov/4.mp4')
+p_p=[0,0]
 while True:
     ret, frame = mov.read()
     if ret:
@@ -146,7 +146,7 @@ while True:
         # roi_img = region_of_interest(pimg, vertices)
         # c_img = cv2.Canny(roi_img, 100,200, apertureSize=3)
         c_img = cv2.Canny(pimg, 100, 200, apertureSize=3)
-        hough_line_test(frame, c_img, 1, 1 * np.pi/180, 40, 20, 30)
+        p_p = hough_line_test(frame, c_img, 1, 1 * np.pi/180, 40, 20, 30, p_p)
         # cv2.imshow('roi', roi_img)
         cv2.imshow("canny", c_img)
         cv2.imshow('re', frame)
@@ -155,9 +155,8 @@ while True:
     else:
         break
 
-txylist = np.array(xylist)
-txylist = txylist.T
-px, py = sum(txylist[0], 0.0) / len(txylist[0]), sum(txylist[1], 0.0) / len(txylist[1])
+
+px,py = p_p.split()
 print(px, py)
 print(width, height)
 line_1 = [[30, hei, px, py]]
